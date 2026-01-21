@@ -53,52 +53,49 @@
 // );
 
 // export default api;
+
+
+
 import axios from "axios";
 
 const resolveBaseURL = () => {
-  // Vercel / local
-  const raw =
-    import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-  // ensure single /api
+  const raw = import.meta.env.VITE_API_URL || "http://localhost:5000";
   return raw.endsWith("/api") ? raw : `${raw}/api`;
 };
 
 const api = axios.create({
   baseURL: resolveBaseURL(),
   timeout: 30000,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-// Attach JWT if present
+// Attach JWT
 api.interceptors.request.use((config) => {
   try {
     const stored = localStorage.getItem("auth_user");
     if (stored) {
       const { token } = JSON.parse(stored);
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+      if (token) config.headers.Authorization = `Bearer ${token}`;
     }
   } catch (_) {}
   return config;
 });
 
-// Handle 401 globally
+let isRedirecting = false;
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    if (error.response?.status === 401 && !isRedirecting) {
       const path = window.location.pathname;
       const isAuthPage =
         path.includes("/signin") ||
         path.includes("/signup") ||
         path.includes("/auth");
 
-      localStorage.clear();
       if (!isAuthPage) {
+        isRedirecting = true;
+        localStorage.clear();
         window.location.href = "/signin";
       }
     }
@@ -107,3 +104,4 @@ api.interceptors.response.use(
 );
 
 export default api;
+
