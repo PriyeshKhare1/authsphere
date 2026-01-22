@@ -1,18 +1,8 @@
 
-
 // import axios from "axios";
 
-// const resolveBaseURL = () => {
-//   const raw =
-//     (typeof process !== "undefined"
-//       ? process.env?.VITE_API_URL || process.env?.REACT_APP_API_URL
-//       : undefined) || "http://localhost:5000";
-
-//   return raw.endsWith("/api") ? raw : `${raw}/api`;
-// };
-
 // const api = axios.create({
-//   baseURL: resolveBaseURL(),
+//   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 //   timeout: 30000,
 //   headers: {
 //     "Content-Type": "application/json",
@@ -20,34 +10,34 @@
 // });
 
 // api.interceptors.request.use((config) => {
-//   try {
-//     const stored = localStorage.getItem("auth_user");
-//     if (stored) {
-//       const { token } = JSON.parse(stored);
-//       if (token) {
-//         config.headers.Authorization = `Bearer ${token}`;
-//       }
+//   const stored = localStorage.getItem("auth_user");
+//   if (stored) {
+//     const parsed = JSON.parse(stored);
+//     if (parsed?.token) {
+//       config.headers.Authorization = `Bearer ${parsed.token}`;
 //     }
-//   } catch (e) {
-//     // ignore
 //   }
 //   return config;
 // });
 
+// let logoutInProgress = false;
+
 // api.interceptors.response.use(
-//   (response) => response,
+//   (res) => res,
 //   (error) => {
-//     if (error.response?.status === 401) {
-//       // Only redirect if not already on signin/auth pages
-//       const currentPath = window.location.pathname;
-//       const isAuthPage = currentPath.includes('/signin') || currentPath.includes('/auth') || currentPath.includes('/signup');
-      
+//     if (
+//       error.response?.status === 401 &&
+//       !logoutInProgress
+//     ) {
+//       logoutInProgress = true;
+
+//       // DO NOT redirect here
 //       localStorage.clear();
-      
-//       if (!isAuthPage) {
-//         window.location.href = "/signin";
-//       }
+
+//       // Dispatch a custom event instead
+//       window.dispatchEvent(new Event("auth-logout"));
 //     }
+
 //     return Promise.reject(error);
 //   }
 // );
@@ -58,44 +48,47 @@
 
 import axios from "axios";
 
-const resolveBaseURL = () => {
-  const raw = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  return raw.endsWith("/api") ? raw : `${raw}/api`;
-};
-
 const api = axios.create({
-  baseURL: resolveBaseURL(),
-  timeout: 30000,
-  headers: { "Content-Type": "application/json" },
+  baseURL: import.meta.env.VITE_API_URL, // <-- SIMPLE & SAFE
+  timeout: 60000, // 60 sec (Railway fast hai, phir bhi safe)
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// Attach JWT
-api.interceptors.request.use((config) => {
-  try {
-    const stored = localStorage.getItem("auth_user");
-    if (stored) {
-      const { token } = JSON.parse(stored);
-      if (token) config.headers.Authorization = `Bearer ${token}`;
+// Attach token if exists
+api.interceptors.request.use(
+  (config) => {
+    try {
+      const stored = localStorage.getItem("auth_user");
+      if (stored) {
+        const { token } = JSON.parse(stored);
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+    } catch (e) {
+      // ignore parse errors
     }
-  } catch (_) {}
-  return config;
-});
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-let isRedirecting = false;
-
+// Handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !isRedirecting) {
-      const path = window.location.pathname;
+    if (error.response?.status === 401) {
+      const currentPath = window.location.pathname;
       const isAuthPage =
-        path.includes("/signin") ||
-        path.includes("/signup") ||
-        path.includes("/auth");
+        currentPath.includes("/signin") ||
+        currentPath.includes("/signup") ||
+        currentPath.includes("/auth");
+
+      localStorage.clear();
 
       if (!isAuthPage) {
-        isRedirecting = true;
-        localStorage.clear();
         window.location.href = "/signin";
       }
     }
@@ -104,4 +97,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
