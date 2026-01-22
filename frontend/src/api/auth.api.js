@@ -2,7 +2,7 @@
 
 import api from "./axios";
 
-const BASE_URL = "/auth";
+const BASE_URL = "/api/auth";
 
 export const loginUser = async ({ email, password }) => {
   try {
