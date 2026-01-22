@@ -1,37 +1,39 @@
-import api from './axios';
+import api from "./axios";
 
-// Get all active users
+// ✅ Get all active users
 export const getAllUsers = async () => {
-  const response = await api.get('/admin/users');
-  return response.data;
+  const { data } = await api.get("/api/admin/users");
+  return data;
 };
 
-// Get all removed (soft deleted) users
+// ✅ Get all removed (soft deleted) users
 export const getRemovedUsers = async () => {
-  const response = await api.get('/admin/users/removed');
-  return response.data;
+  const { data } = await api.get("/api/admin/users/removed");
+  return data;
 };
 
-// Soft delete a user (Fire user)
+// ✅ Soft delete a user
 export const deleteUser = async (userId, reason) => {
-  const response = await api.delete(`/admin/users/${userId}`, { data: { reason } });
-  return response.data;
+  const { data } = await api.delete(`/api/admin/users/${userId}`, {
+    data: { reason },
+  });
+  return data;
 };
 
-// Restore a soft deleted user
+// ✅ Restore user
 export const restoreUser = async (userId) => {
-  const response = await api.put(`/admin/users/${userId}/restore`);
-  return response.data;
+  const { data } = await api.put(`/api/admin/users/${userId}/restore`);
+  return data;
 };
 
-// Permanently delete a user
+// ✅ Permanently delete user
 export const permanentlyDeleteUser = async (userId) => {
-  const response = await api.delete(`/admin/users/${userId}/permanent`);
-  return response.data;
+  const { data } = await api.delete(`/api/admin/users/${userId}/permanent`);
+  return data;
 };
 
-// Update user role
+// ✅ Update user role
 export const updateUserRole = async (userId, role) => {
-  const response = await api.put(`/admin/users/${userId}/role`, { role });
-  return response.data;
+  const { data } = await api.put(`/api/admin/users/${userId}/role`, { role });
+  return data;
 };
