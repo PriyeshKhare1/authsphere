@@ -1,88 +1,3 @@
-// import Navbar from "../components/Navbar";
-// import { useNavigate } from "react-router-dom";
-// import { useAuth } from "../context/AuthContext";
-// import {
-//   Users,
-//   Shield,
-//   Server,
-//   Activity,
-//   Eye,
-//   Search,
-//   CheckCircle,
-//   XCircle,
-//   Clock,
-//   TrendingUp,
-//   UserPlus,
-//   Settings,
-//   Database,
-//   Mail,
-// } from 'lucide-react';
-
-// export default function AdminDashboard() {
-//   const navigate = useNavigate();
-//   const { user } = useAuth();
-
-//   return (
-//     <>
-//       <Navbar />
-
-//       <div className="min-h-screen bg-slate-900 text-white px-6 py-10">
-//         {/* Admin Panel */}
-        
-//         <h1 className="text-3xl font-bold mb-6">Admin Panel</h1>
-
-//         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-//           {/* Admin Info */}
-//           <div className="bg-slate-800 p-6 rounded-xl shadow">
-//             <h2 className="text-lg font-semibold mb-2">Admin Info</h2>
-//             <p className="text-sm text-gray-300">
-//               Email: <b>{user?.email}</b>
-//             </p>
-//             <p className="text-sm text-gray-300">
-//               Role: <b>{user?.role}</b>
-//             </p>
-//           </div>
-
-//           {/* System Status */}
-//           <div className="bg-slate-800 p-6 rounded-xl shadow">
-//             <h2 className="text-lg font-semibold mb-2">System Status</h2>
-//             <p className="text-sm text-green-400">Auth Service: Running</p>
-//             <p className="text-sm text-green-400">API: Connected</p>
-//           </div>
-
-//           {/* Permissions */}
-//           <div className="bg-slate-800 p-6 rounded-xl shadow">
-//             <h2 className="text-lg font-semibold mb-2">Permissions</h2>
-//             <ul className="text-sm text-gray-300 space-y-1">
-//               <li>✔ View all users</li>
-//               <li>✔ Manage roles</li>
-//               <li>✔ Access admin routes</li>
-//             </ul>
-//           </div>
-//         </div>
-
-//         {/* All Users Monitoring Panel */}
-//         <h2 className="text-2xl font-bold mb-4">all users monitoring panel</h2>
-
-//         <div className="bg-slate-800 p-6 rounded-xl shadow flex flex-col md:flex-row md:justify-between items-start md:items-center">
-//           <div>
-//             <h3 className="text-lg font-semibold mb-1">monitoring all users</h3>
-//             <p className="text-sm text-gray-300">check the all users data</p>
-//           </div>
-
-//           {/* Button to redirect to new page */}
-//           <button
-//             onClick={() => navigate("./all-users")} // <- your new page route
-//             className="mt-4 md:mt-0 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded"
-//           >
-//             check all data users
-//           </button>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
 
 import { useEffect, useState } from "react";
 import { Users, Shield, Activity, Edit2, Save, X, Clock, Search, Download, Trash2 } from "lucide-react";
@@ -154,7 +69,7 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       // Fetch users
-      const usersRes = await fetch("http://localhost:5000/api/users/all", {
+      const usersRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!usersRes.ok) throw new Error("Failed to fetch users");
@@ -162,7 +77,7 @@ export default function AdminDashboard() {
       setUsers(usersData);
 
       // Fetch all attendance records (managers' working times)
-      const attendanceRes = await fetch("http://localhost:5000/api/attendance/team", {
+      const attendanceRes = await fetch(`${import.meta.env.VITE_API_URL}/api/attendance/team`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (attendanceRes.ok) {
@@ -197,7 +112,7 @@ export default function AdminDashboard() {
           ? editForm.managerId._id
           : editForm.managerId) || null;
 
-      const res = await fetch(`http://localhost:5000/api/users/${editingUser}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${editingUser}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
