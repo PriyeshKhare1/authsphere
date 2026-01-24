@@ -69,6 +69,7 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       // Fetch users
+       console.log(token ,"tokennnnn");
       const usersRes = await fetch(`${import.meta.env.VITE_API_URL}/api/users/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
